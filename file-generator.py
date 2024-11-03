@@ -3,12 +3,16 @@ import sys
 import shutil
 
 def generateFiles(miesiace, dni_tygodnia, pory_dnia):
+    k = 0
     for i, miesiac in enumerate(miesiace):
         dni = dni_tygodnia[i] if i < len(dni_tygodnia) else dni_tygodnia[-1]
-        pory = pory_dnia[i:] + ['r'] * (len(dni.split('-')) - len(pory_dnia[i:]))  # Domyślnie rano dla brakujących pór
 
         for j, dzien in enumerate(dni.split('-')):
-            pora = 'rano' if pory[j] == 'r' else 'wieczorem'
+            if (k < len(pory_dnia)):
+                pora = 'rano' if pory_dnia[k] == 'r' else 'wieczorem'
+            else:
+                pora = 'wieczorem'
+            k = k + 1
             sciezka = os.path.join(miesiac, dzien, pora)
             os.makedirs(sciezka, exist_ok=True)
             print(f"Utworzono katalog: {sciezka}")
@@ -23,7 +27,7 @@ def deleteFiles():
             shutil.rmtree(miesiac)
 
 def main():
-    generateFiles(["styczeń", "luty", "kwiecień"], ["pn-wt", "pt", "sb"], ["r","w"])
+    generateFiles(["styczeń", "luty", "kwiecień"], ["pn-wt", "pt", "sb"], ["r","w",'r','r'])
     deleteFiles()
 
 main()
