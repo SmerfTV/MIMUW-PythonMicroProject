@@ -6,7 +6,6 @@ def generateFiles(miesiace, dni_tygodnia, pory_dnia):
     k = 0
     for i, miesiac in enumerate(miesiace):
         dni = dni_tygodnia[i] if i < len(dni_tygodnia) else dni_tygodnia[-1]
-
         for j, dzien in enumerate(dni.split('-')):
             if (k < len(pory_dnia)):
                 pora = 'rano' if pory_dnia[k] == 'r' else 'wieczorem'
