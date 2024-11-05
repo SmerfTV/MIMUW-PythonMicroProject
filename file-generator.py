@@ -59,7 +59,6 @@ def readFiles(miesiace, dni_tygodnia, pory_dnia):
     k = 0
     tydzien = ['pn', 'wt', 'śr', 'czw', 'pt', 'sob', 'niedz']
     suma_czas = 0
-
     for i, miesiac in enumerate(miesiace):
         dni = dni_tygodnia[i].split('-')
         if len(dni) == 2:
@@ -130,18 +129,11 @@ def main():
     group.add_argument('-t', '--tworzenie', action='store_true', help='Tworzenie plików CSV')
     group.add_argument('-o', '--odczyt', action='store_true', help='Odczyt plików CSV')
 
-    # e) Opcja usuwania plików
-    parser.add_argument('--delete', action='store_true', help='Usuń wszystkie utworzone katalogi i pliki')
-
     args = parser.parse_args()
 
     miesiace = args.months
     dni_tygodnia = args.days
     pory_dnia = args.pory if args.pory else []
-
-    if args.delete:
-        deleteFiles()
-        sys.exit(0)
 
     if len(miesiace) != len(dni_tygodnia):
         print('Liczba miesięcy musi być równa liczbie zakresów dni tygodnia.')
