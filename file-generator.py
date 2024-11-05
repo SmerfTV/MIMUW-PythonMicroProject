@@ -40,7 +40,7 @@ def generateFiles(miesiace, dni_tygodnia, pory_dnia):
 
 # Funkcja tylko do testów
 def deleteFiles():
-    miesiace = ["styczen", "luty", "marzec", "kwiecień", "maj",
+    miesiace = ["styczeń", "luty", "marzec", "kwiecień", "maj",
                 "czerwiec", "lipiec", "sierpień", "wrzesień",
                 "październik", "listopad", "grudzień"]
     for miesiac in miesiace:
