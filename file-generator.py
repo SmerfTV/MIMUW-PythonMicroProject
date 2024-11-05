@@ -22,28 +22,39 @@ def generateFiles(miesiace, dni_tygodnia, pory_dnia):
                 pora = 'rano' if pory_dnia[k] == 'r' else 'wieczór'
             else:
                 pora = 'rano'
-            k = k + 1
+            k += 1
             sciezka = os.path.join(miesiac, dzien, pora)
             os.makedirs(sciezka, exist_ok=True)
-            sciezka = os.path.join(miesiac, dzien, pora, FILENAME)
+            sciezka_pliku = os.path.join(sciezka, FILENAME)
 
-            if os.path.isfile(sciezka):
-                print(f"Plik już istnieje dlatego nie zostanie utworzony:\n {sciezka}")
+            if os.path.isfile(sciezka_pliku):
+                print(f"Plik już istnieje, więc nie zostanie utworzony:\n{sciezka_pliku}")
             else:
-                header = "Model; Wynik; Czas"
-                model = random.choice(["A", "B", "C"])
-                wynik = random.randint(0, 1000)
-                czas = f"{random.randint(0, 1000)}s"
+                try:
+                    zapisz_csv(sciezka_pliku)
+                    print(f"Utworzono plik CSV: {sciezka_pliku}")
+                except Exception as e:
+                    print(f"Nie udało się utworzyć pliku {sciezka_pliku}: {e}")
 
-                with open(sciezka, mode="w", encoding="utf-8") as file:
-                    file.write(f"{header};\n")
-                    file.write(f"{model} ; {wynik} ; {czas};\n")
-                print(f"Utworzono plik: {sciezka}")
+def zapisz_csv(sciezka_pliku):
+    """
+    Zapisuje dane do pliku CSV zgodnie z wymaganiami.
+    Pierwsza linia to nagłówek, druga linia to losowe dane.
+    """
+    header = ["Model", "Wynik", "Czas"]
+    model = random.choice(["A", "B", "C"])
+    wynik = random.randint(0, 1000)
+    czas = f"{random.randint(0, 1000)}s"
 
+    with open(sciezka_pliku, mode="w", encoding="utf-8", newline='') as file:
+        writer = csv.writer(file, delimiter=';')
+        writer.writerow(header)
+        writer.writerow([model, wynik, czas])
 
 def readFiles(miesiace, dni_tygodnia, pory_dnia):
     k = 0
     tydzien = ['pn', 'wt', 'śr', 'czw', 'pt', 'sob', 'niedz']
+    suma_czas = 0
 
     for i, miesiac in enumerate(miesiace):
         dni = dni_tygodnia[i].split('-')
@@ -56,18 +67,27 @@ def readFiles(miesiace, dni_tygodnia, pory_dnia):
                 pora = 'rano' if pory_dnia[k] == 'r' else 'wieczór'
             else:
                 pora = 'rano'
-            k = k + 1
-            sciezka = os.path.join(miesiac, dzien, pora, FILENAME)
+            k += 1
+            sciezka_pliku = os.path.join(miesiac, dzien, pora, FILENAME)
 
-            if os.path.exists(sciezka):
-                with open(sciezka, mode="r", encoding="utf-8") as file:
-                    # Odczytanie i wyświetlenie zawartości pliku
-                    print(f"\nZawartość pliku: {sciezka}")
-                    for line in file:
-                        print(line.strip())
+            if os.path.exists(sciezka_pliku):
+                try:
+                    with open(sciezka_pliku, mode="r", encoding="utf-8") as file:
+                        reader = csv.DictReader(file, delimiter=';')
+                        for row in reader:
+                            if row.get("Model") == "A":
+                                czas_str = row.get("Czas", "0s").rstrip('s')
+                                try:
+                                    czas = int(czas_str)
+                                    suma_czas += czas
+                                except ValueError:
+                                    print(f"Błędny format czasu w pliku {sciezka_pliku}: {row.get('Czas')}")
+                except Exception as e:
+                    print(f"Nie udało się odczytać pliku {sciezka_pliku}: {e}")
             else:
-                print(f"Plik nie istnieje: {sciezka}")
+                print(f"Plik CSV nie istnieje: {sciezka_pliku}")
 
+    print(f"Suma czasu dla Model A: {suma_czas}s")
 
 # Funkcja tylko do testów
 def deleteFiles():
@@ -76,13 +96,15 @@ def deleteFiles():
                 "październik", "listopad", "grudzień"]
     for miesiac in miesiace:
         if os.path.exists(miesiac):
-            shutil.rmtree(miesiac)
-
+            try:
+                shutil.rmtree(miesiac)
+                print(f"Usunięto katalog: {miesiac}")
+            except Exception as e:
+                print(f"Nie udało się usunąć katalogu {miesiac}: {e}")
+    print("Wszystkie katalogi i pliki zostały usunięte.")
 
 def main():
-    import argparse
-
-    parser = argparse.ArgumentParser(description='Skrypt do tworzenia lub odczytu plików.')
+    parser = argparse.ArgumentParser(description='Skrypt do tworzenia lub odczytu plików CSV.')
 
     # a) Wybór miesięcy (można wybrać dowolną ilość)
     parser.add_argument('--months', nargs='+', required=True, help='Lista miesięcy (np. styczeń luty)')
@@ -94,13 +116,12 @@ def main():
     parser.add_argument('--pory', nargs='*', help='Lista pór dnia (r lub w). Jeśli nie podano, domyślnie "rano"')
 
     # d) Wybór opcji tworzenie / odczyt
-    group = parser.add_mutually_exclusive_group()
-    group.add_argument('-t', '--tworzenie', action='store_true', help='Tworzenie plików')
-    group.add_argument('-o', '--odczyt', action='store_true', help='Odczyt plików')
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument('-t', '--tworzenie', action='store_true', help='Tworzenie plików CSV')
+    group.add_argument('-o', '--odczyt', action='store_true', help='Odczyt plików CSV')
 
-    # e) Wybór formatu pliku csv / json
-    parser.add_argument('-c', '--csv', action='store_true', help='Użyj formatu CSV')
-    parser.add_argument('-j', '--json', action='store_true', help='Użyj formatu JSON')
+    # e) Opcja usuwania plików
+    parser.add_argument('--delete', action='store_true', help='Usuń wszystkie utworzone katalogi i pliki')
 
     args = parser.parse_args()
 
@@ -112,10 +133,14 @@ def main():
         print('Liczba miesięcy musi być równa liczbie zakresów dni tygodnia.')
         sys.exit(1)
 
-    generateFiles(miesiace, dni_tygodnia, pory_dnia)
-    readFiles(miesiace,dni_tygodnia, pory_dnia)
-    deleteFiles()
+    if args.delete:
+        deleteFiles()
+        sys.exit(0)
 
+    if args.tworzenie:
+        generateFiles(miesiace, dni_tygodnia, pory_dnia)
+    elif args.odczyt:
+        readFiles(miesiace, dni_tygodnia, pory_dnia)
 
 if __name__ == '__main__':
     main()
