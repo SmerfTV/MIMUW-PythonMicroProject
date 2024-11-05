@@ -27,15 +27,47 @@ def generateFiles(miesiace, dni_tygodnia, pory_dnia):
             os.makedirs(sciezka, exist_ok=True)
             sciezka = os.path.join(miesiac, dzien, pora, FILENAME)
 
-            header = "Model; Wynik; Czas"
-            model = random.choice(["A", "B", "C"])
-            wynik = random.randint(0, 1000)
-            czas = f"{random.randint(0, 1000)}s"
+            if os.path.isfile(sciezka):
+                print(f"Plik już istnieje dlatego nie zostanie utworzony:\n {sciezka}")
+            else:
+                header = "Model; Wynik; Czas"
+                model = random.choice(["A", "B", "C"])
+                wynik = random.randint(0, 1000)
+                czas = f"{random.randint(0, 1000)}s"
 
-            with open(sciezka, mode="w", encoding="utf-8") as file:
-                file.write(f"{header};\n")
-                file.write(f"{model} ; {wynik} ; {czas};\n")
-            print(f"Utworzono plik: {sciezka}")
+                with open(sciezka, mode="w", encoding="utf-8") as file:
+                    file.write(f"{header};\n")
+                    file.write(f"{model} ; {wynik} ; {czas};\n")
+                print(f"Utworzono plik: {sciezka}")
+
+
+def readFiles(miesiace, dni_tygodnia, pory_dnia):
+    k = 0
+    tydzien = ['pn', 'wt', 'śr', 'czw', 'pt', 'sob', 'niedz']
+
+    for i, miesiac in enumerate(miesiace):
+        dni = dni_tygodnia[i].split('-')
+        if len(dni) == 2:
+            start_index = tydzien.index(dni[0])
+            end_index = tydzien.index(dni[1])
+            dni = tydzien[start_index:end_index + 1]
+        for dzien in dni:
+            if k < len(pory_dnia):
+                pora = 'rano' if pory_dnia[k] == 'r' else 'wieczór'
+            else:
+                pora = 'rano'
+            k = k + 1
+            sciezka = os.path.join(miesiac, dzien, pora, FILENAME)
+
+            if os.path.exists(sciezka):
+                with open(sciezka, mode="r", encoding="utf-8") as file:
+                    # Odczytanie i wyświetlenie zawartości pliku
+                    print(f"\nZawartość pliku: {sciezka}")
+                    for line in file:
+                        print(line.strip())
+            else:
+                print(f"Plik nie istnieje: {sciezka}")
+
 
 # Funkcja tylko do testów
 def deleteFiles():
@@ -81,6 +113,7 @@ def main():
         sys.exit(1)
 
     generateFiles(miesiace, dni_tygodnia, pory_dnia)
+    readFiles(miesiace,dni_tygodnia, pory_dnia)
     deleteFiles()
 
 
