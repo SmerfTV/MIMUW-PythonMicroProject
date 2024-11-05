@@ -98,20 +98,6 @@ def readFiles(miesiace, dni_tygodnia, pory_dnia):
 
     print(f"\nSuma czasu dla Model A: {suma_czas}s")
 
-# Funkcja tylko do testów
-def deleteFiles():
-    miesiace = ["styczeń", "luty", "marzec", "kwiecień", "maj",
-                "czerwiec", "lipiec", "sierpień", "wrzesień",
-                "październik", "listopad", "grudzień"]
-    for miesiac in miesiace:
-        if os.path.exists(miesiac):
-            try:
-                shutil.rmtree(miesiac)
-                print(f"Usunięto katalog: {miesiac}")
-            except Exception as e:
-                print(f"Nie udało się usunąć katalogu {miesiac}: {e}")
-    print("Wszystkie katalogi i pliki zostały usunięte.")
-
 def main():
     parser = argparse.ArgumentParser(description='Skrypt do tworzenia lub odczytu plików CSV.')
 
