@@ -61,9 +61,3 @@ python skrypt.py --months <miesiące> --days <dni_tygodnia> [--pory <pory_dnia>]
 - **Michał Stradczuk**
 - **Antoni Cichoń**
 
-- **Wsparcie:**
-  - W przypadku pytań lub problemów, prosimy o otwarcie [issue](https://github.com/twoje-repozytorium/skrypt-csv/issues) w repozytorium.
-
----
-
-*Dziękujemy za korzystanie z naszego skryptu!*
