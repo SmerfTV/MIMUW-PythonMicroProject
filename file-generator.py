@@ -14,9 +14,13 @@ def generateFiles(miesiace, dni_tygodnia, pory_dnia):
     for i, miesiac in enumerate(miesiace):
         dni = dni_tygodnia[i].split('-')
         if len(dni) == 2:
-            start_index = tydzien.index(dni[0])
-            end_index = tydzien.index(dni[1])
-            dni = tydzien[start_index:end_index + 1]
+            try:
+                start_index = tydzien.index(dni[0])
+                end_index = tydzien.index(dni[1])
+                dni = tydzien[start_index:end_index + 1]
+            except ValueError as e:
+                print(f"Błąd w zakresie dni tygodnia: {e}")
+                sys.exit(1)
         for dzien in dni:
             if k < len(pory_dnia):
                 pora = 'rano' if pory_dnia[k] == 'r' else 'wieczór'
@@ -59,9 +63,13 @@ def readFiles(miesiace, dni_tygodnia, pory_dnia):
     for i, miesiac in enumerate(miesiace):
         dni = dni_tygodnia[i].split('-')
         if len(dni) == 2:
-            start_index = tydzien.index(dni[0])
-            end_index = tydzien.index(dni[1])
-            dni = tydzien[start_index:end_index + 1]
+            try:
+                start_index = tydzien.index(dni[0])
+                end_index = tydzien.index(dni[1])
+                dni = tydzien[start_index:end_index + 1]
+            except ValueError as e:
+                print(f"Błąd w zakresie dni tygodnia: {e}")
+                sys.exit(1)
         for dzien in dni:
             if k < len(pory_dnia):
                 pora = 'rano' if pory_dnia[k] == 'r' else 'wieczór'
@@ -74,7 +82,9 @@ def readFiles(miesiace, dni_tygodnia, pory_dnia):
                 try:
                     with open(sciezka_pliku, mode="r", encoding="utf-8") as file:
                         reader = csv.DictReader(file, delimiter=';')
+                        print(f"\nZawartość pliku: {sciezka_pliku}")
                         for row in reader:
+                            print(row)
                             if row.get("Model") == "A":
                                 czas_str = row.get("Czas", "0s").rstrip('s')
                                 try:
@@ -87,7 +97,7 @@ def readFiles(miesiace, dni_tygodnia, pory_dnia):
             else:
                 print(f"Plik CSV nie istnieje: {sciezka_pliku}")
 
-    print(f"Suma czasu dla Model A: {suma_czas}s")
+    print(f"\nSuma czasu dla Model A: {suma_czas}s")
 
 # Funkcja tylko do testów
 def deleteFiles():
@@ -129,13 +139,13 @@ def main():
     dni_tygodnia = args.days
     pory_dnia = args.pory if args.pory else []
 
-    if len(miesiace) != len(dni_tygodnia):
-        print('Liczba miesięcy musi być równa liczbie zakresów dni tygodnia.')
-        sys.exit(1)
-
     if args.delete:
         deleteFiles()
         sys.exit(0)
+
+    if len(miesiace) != len(dni_tygodnia):
+        print('Liczba miesięcy musi być równa liczbie zakresów dni tygodnia.')
+        sys.exit(1)
 
     if args.tworzenie:
         generateFiles(miesiace, dni_tygodnia, pory_dnia)
