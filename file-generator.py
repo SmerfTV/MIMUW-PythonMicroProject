@@ -27,15 +27,14 @@ def generateFiles(miesiace, dni_tygodnia, pory_dnia):
             os.makedirs(sciezka, exist_ok=True)
             sciezka = os.path.join(miesiac, dzien, pora, FILENAME)
 
-            header = ["Model", "Wynik", "Czas"]
+            header = "Model; Wynik; Czas"
             model = random.choice(["A", "B", "C"])
             wynik = random.randint(0, 1000)
             czas = f"{random.randint(0, 1000)}s"
 
-            with open(sciezka, mode="w", newline="") as file:
-                writer = csv.writer(file, delimiter=";")
-                writer.writerow(header)
-                writer.writerow([model, wynik, czas])
+            with open(sciezka, mode="w", encoding="utf-8") as file:
+                file.write(f"{header};\n")
+                file.write(f"{model} ; {wynik} ; {czas};\n")
             print(f"Utworzono plik: {sciezka}")
 
 # Funkcja tylko do testów
